@@ -16,7 +16,7 @@
        update_cache: yes
     when: ansible_distribution == "CentOS"
 
-- hosts: web_server
+- hosts: web_servers
   become: true
   tasks:
 
@@ -38,7 +38,7 @@
        update_cache: yes
     when: ansible_facts['distribution'] == "CentOS"
 
-- hosts: db_server
+- hosts: db_servers
   become: true
   tasks:
 
@@ -49,6 +49,15 @@
      when: ansible_distribution == "CentOS"
 
    - name: installing mariadb package (Ubuntu)
-     package:
+     apt:
             name: mariadb_server
      when: ansible_distribution == "Ubuntu"
+
+- hosts: file_servers
+  become: true
+  tasks:
+
+    - name: installing samba package
+      package:
+            name: samba
+            state: latest
