@@ -2,7 +2,7 @@
 
 - hosts: all
   become: true
-  tasks:
+  pre-tasks:
 
   - name: install updates (Ubuntu)
     apt:
