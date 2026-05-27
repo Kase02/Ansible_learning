@@ -1,1 +1,10 @@
-kelechi-onuoha@192.168.92.130
+[web_servers]
+192.168.92.136 ansible_user=kasescreen
+
+[db_servers]
+192.168.92.134 ansible_user=kasescreen
+192.168.92.132 ansible_user=kasescreen
+
+[file_servers]
+192.168.92.135 ansible_user=kasescreen
+192.168.92.133 ansible_user=kasescreen
