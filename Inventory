@@ -1,8 +1,14 @@
 [web_servers]
-kelechi-onuoha@192.168.92.130
+kasescreen@192.168.92.136
 
 [db_servers]
-kelechi-onuoha@192.168.92.128
+kasescreen@192.168.92.134
+kasescreen@192.168.92.132
 
 [file_servers]
-kelechi-onuoha@192.168.92.129
+kasescreen@192.168.92.135
+kasescreen@192.168.92.133
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3.12
+

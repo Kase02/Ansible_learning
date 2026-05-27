@@ -1,10 +1,14 @@
 [web_servers]
-192.168.92.136 ansible_user=kasescreen
+kasescreen@192.168.92.136
 
 [db_servers]
-192.168.92.134 ansible_user=kasescreen
-192.168.92.132 ansible_user=kasescreen
+kasescreen@192.168.92.134
+kasescreen@192.168.92.132
 
 [file_servers]
-192.168.92.135 ansible_user=kasescreen
-192.168.92.133 ansible_user=kasescreen
+kasescreen@192.168.92.135
+kasescreen@192.168.92.133
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3.12
+

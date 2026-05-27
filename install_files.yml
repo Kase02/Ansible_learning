@@ -1,63 +1,40 @@
 ---
-
 - hosts: all
   become: true
-  pre-tasks:
-
-  - name: install updates (Ubuntu)
-    apt:
-       upgrade: dist
-       update_cache: yes
-    when: ansible_distribution == "Ubuntu"
-
-  - name: install updates (CentOS)
-    dnf:
-       update_only: yes
-       update_cache: yes
-    when: ansible_distribution == "CentOS"
+  tasks:
+    - name: install updates (Ubuntu)
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_facts["distribution"] == "Ubuntu"
 
 - hosts: web_servers
   become: true
+  gather_facts: no
   tasks:
-
-  - name: install apache2 and php package for Ubuntu
-    apt:
-       name: 
-         - apache2
-         - libapache2-mod-php
-       state: latest
-    when: ansible_facts['distribution'] == "Ubuntu"
-
-
-  - name: install apache2 package for CentOS
-    dnf:
-       name: 
-        - "httpd"
-        - "php"
-       state: latest
-       update_cache: yes
-    when: ansible_facts['distribution'] == "CentOS"
+    - name: install apache2 and php package for Ubuntu
+      apt:
+        name:
+          - apache2
+          - libapache2-mod-php
+        state: latest
+      when: ansible_facts["distribution"] == "Ubuntu"
 
 - hosts: db_servers
   become: true
+  gather_facts: no
   tasks:
-
-   - name: installing mariadb package (CentOS)
-     dnf:
-        name: mariadb
+    - name: installing mariadb package (Ubuntu)
+      apt:
+        name: mariadb-server
         state: latest
-     when: ansible_distribution == "CentOS"
-
-   - name: installing mariadb package (Ubuntu)
-     apt:
-            name: mariadb_server
-     when: ansible_distribution == "Ubuntu"
+      when: ansible_distribution == "Ubuntu"
 
 - hosts: file_servers
   become: true
+  gather_facts: no
   tasks:
-
-    - name: installing samba package
+    - name: installing samba for Ubuntu
       package:
-            name: samba
-            state: latest
+        name: samba
+        state: latest
