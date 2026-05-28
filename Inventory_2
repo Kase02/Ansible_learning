@@ -7,6 +7,8 @@ kasescreen@192.168.92.132
 
 [file_servers]
 kasescreen@192.168.92.135
+
+[workstations]
 kasescreen@192.168.92.133
 
 [all:vars]
