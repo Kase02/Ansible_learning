@@ -1,0 +1,92 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: install security updates only (Ubuntu)
+      tags: always
+      apt:
+        upgrade: safe
+        update_cache: yes
+      async: 600
+      poll: 0
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+- hosts: workstations
+  become: true
+  tasks:
+    - name: install unzip
+      package:
+        name: unzip
+        state: present
+
+    - name: download terraform archive
+      get_url:
+        url: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+        dest: /tmp/terraform.zip
+      async: 300
+      poll: 0
+
+    - name: install terraform
+      unarchive:
+        src: /tmp/terraform.zip
+        dest: /usr/local/bin
+        remote_src: no
+        mode: 0755
+        owner: root
+        group: root
+
+- hosts: web_servers
+  become: true
+  tasks:
+    - name: install apache2 and php package for Ubuntu
+      tags: apache,apache2,Ubuntu
+      apt:
+        name:
+          - apache2
+          - libapache2-mod-php
+        state: present
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Copy default file for install_file
+      tags: apache,apache2,Ubuntu
+      copy:
+        src: default_site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: change email address for admin
+      tags: apache, apache2, Ubuntu
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^ServerAdmin'
+        line: ServerAdmin onuohakelechigreat@gmail.com
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: restart apache2 (Ubuntu)
+      tags: apache,Ubuntu,apache2
+      service:
+        name: apache2
+        state: restarted
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+- hosts: db_servers
+  become: true
+  tasks:
+    - name: installing mariadb package (Ubuntu)
+      tags: db,mariadb,Ubuntu
+      apt:
+        name: mariadb-server
+        state: present
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+- hosts: file_servers
+  become: true
+  tasks:
+    - name: installing samba for Ubuntu
+      tags: samba
+      package:
+        name: samba
+        state: present
+
