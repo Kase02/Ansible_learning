@@ -1,0 +1,4 @@
+- name: add ssh key for Kase to authorize
+  authorized_key:
+    user: Kase
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHrqr9Jbmr+31+z/kcvpjHb6j0gDiFYNagUMyt8Mwld0 ansible"

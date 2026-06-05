@@ -1,0 +1,67 @@
+---
+
+- hosts: all
+  become: true
+  serial: 1
+  tasks:
+    - name: install security updates only (Ubuntu)
+      tags: always
+      apt:
+        update_cache: yes
+      changed_when: false
+      async: 600
+      poll: 0
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+-  hosts: all
+   become: true
+   tasks:
+     - name: add ssh key for Kase to authorize
+       tags: always
+       authorized_key:
+         user: Kase
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHrqr9Jbmr+31+z/kcvpjHb6j0gDiFYNagUMyt8Mwld0 ansible"
+
+- hosts: workstations
+  become: true
+  tasks:
+    - name: install unzip
+      package:
+        name: unzip
+        state: present
+
+- hosts: web_servers
+  become: true
+  tasks:
+    - name: install apache2 and php package for Ubuntu
+      tags: apache,apache2,Ubuntu
+      apt:
+        name:
+          - apache2
+          - libapache2-mod-php
+        state: present
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: Copy default file for install_file
+      tags: apache,apache2,Ubuntu
+      copy:
+        src: default_site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: change email address for admin
+      tags: apache, apache2, Ubuntu
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^ServerAdmin'
+        line: ServerAdmin onuohakelechigreat@gmail.com
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: restart apache2 (Ubuntu)
+      tags: apache,Ubuntu,apache2
+      service:
+        name: apache2
+        state: restarted
+      when: ansible_facts["distribution"] == "Ubuntu"

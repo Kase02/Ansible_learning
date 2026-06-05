@@ -1,14 +1,23 @@
-
 ---
+
+- hosts: all
+  become: true
+  serial: 1
+  tasks:
+    - name: install security updates only (Ubuntu)
+      tags: always
+      apt:
+        update_cache: yes
+      when: ansible_facts["distribution"] == "Ubuntu"
+
 - hosts: all
   become: true
   tasks:
-    - name: install updates (Ubuntu)
+    - name: add ssh key for user (Kase) to autorize
       tags: always
-      apt:
-        upgrade: dist
-        update_cache: yes
-      when: ansible_facts["distribution"] == "Ubuntu"
+      authorized_keys:
+        user: kase
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHrqr9Jbmr+31+z/kcvpjHb6j0gDiFYNagUMyt8Mwld0 ansible"
 
 - hosts: workstations
   become: true
@@ -16,12 +25,20 @@
     - name: install unzip
       package:
         name: unzip
+        state: present
+
+    - name: download terraform archive
+      get_url:
+        url: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+        dest: /tmp/terraform.zip
+      async: 300
+      poll: 0
 
     - name: install terraform
       unarchive:
-        src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+        src: /tmp/terraform.zip
         dest: /usr/local/bin
-        remote_src: yes
+        remote_src: no
         mode: 0755
         owner: root
         group: root
@@ -35,7 +52,7 @@
         name:
           - apache2
           - libapache2-mod-php
-        state: latest
+        state: present
       when: ansible_facts["distribution"] == "Ubuntu"
 
     - name: Copy default file for install_file
@@ -47,6 +64,20 @@
         group: root
         mode: 0644
 
+    - name: change email address for admin
+      tags: apache, apache2, Ubuntu
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^ServerAdmin'
+        line: ServerAdmin onuohakelechigreat@gmail.com
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+    - name: restart apache2 (Ubuntu)
+      tags: apache,Ubuntu,apache2
+      service:
+        name: apache2
+        state: restarted
+      when: ansible_facts["distribution"] == "Ubuntu"
 
 - hosts: db_servers
   become: true
@@ -55,15 +86,8 @@
       tags: db,mariadb,Ubuntu
       apt:
         name: mariadb-server
-        state: latest
+        state: present
       when: ansible_facts["distribution"] == "Ubuntu"
-
-    - name: installing mariadb package (CentOS)
-      tags: db, mariadb,CentOS
-      dnf:
-        name: mariadb
-        state: latest
-      when: ansible_facts["distribution"] == "CentOS"
 
 - hosts: file_servers
   become: true
@@ -72,4 +96,5 @@
       tags: samba
       package:
         name: samba
-        state: latest
+        state: present
+

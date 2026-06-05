@@ -1,0 +1,36 @@
+---
+- hosts: all
+  become: true
+  serial: 1
+  tasks:
+    - name: install security updates only (Ubuntu)
+      tags: always
+      apt:
+        upgrade: safe
+        update_cache: yes
+      async: 600
+      poll: 0
+      when: ansible_facts["distribution"] == "Ubuntu"
+
+-  hosts: all
+   become: true
+   tasks:
+     - name: creating a user (kase)
+       tags: always
+       user:
+        name: Kase
+        groups: root
+
+     - name: add ssh key for Kase to authorize
+       tags: always
+       authorized_key:
+         user: Kase
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHrqr9Jbmr+31+z/kcvpjHb6j0gDiFYNagUMyt8Mwld0 ansible"
+
+     - name: add sudoers file for kase
+       copy:
+         src: sudoer_Kase
+         dest: /etc/sudoers.d/Kase
+         owner: root 
+         group: root
+         mode: 0440

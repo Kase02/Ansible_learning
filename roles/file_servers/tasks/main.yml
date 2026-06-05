@@ -1,0 +1,5 @@
+- name: installing samba for Ubuntu
+  tags: samba
+  package:
+    name: samba
+    state: latest
